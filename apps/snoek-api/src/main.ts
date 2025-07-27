@@ -1,38 +1,70 @@
-import Fastify, { FastifyReply, FastifyRequest } from 'fastify';
+import path from 'node:path';
+import fastifyAutoload from '@fastify/autoload';
+import { FastifyInstance, FastifyPluginOptions } from 'fastify';
 
-const fastify = Fastify({
-  logger: {
-    transport: {
-      target: "pino-pretty",
+export const options = {
+  ajv: {
+    customOptions: {
+      coerceTypes: 'array',
+      removeAdditional: 'all',
     },
   },
-});
+};
 
-fastify.get("/api/hello", {
-  handler: async (
-    request: FastifyRequest,
-    reply: FastifyReply
-  ) => {
-    console.log({ request });
+export default async function serviceApp(fastify: FastifyInstance, opts: FastifyPluginOptions) {
+  delete opts.skipOverride; // This option only serves testing purpose
 
-    return reply.code(200).send({message: "Hello boekeroekerts!"});
-  },
-});
+  // This loads all external plugins defined in plugins/external
+  // those should be registered first as your application plugins might depend on them
+  await fastify.register(fastifyAutoload, {
+    dir: path.join(import.meta.dirname, 'plugins/external'),
+    options: { ...opts },
+  });
 
-async function main() {
-  await fastify.listen({
-    port: 8300,
-    host: "0.0.0.0",
+  // This loads all your application plugins defined in plugins/app
+  // those should be support plugins that are reused
+  // through your application
+  // fastify.register(fastifyAutoload, {
+  //   dir: path.join(import.meta.dirname, 'plugins/app'),
+  //   options: { ...opts },
+  // });
+
+  // This loads all plugins defined in routes
+  // define your routes in one of these
+  fastify.register(fastifyAutoload, {
+    dir: path.join(import.meta.dirname, 'routes'),
+    autoHooks: true,
+    cascadeHooks: true,
+    options: { ...opts },
+  });
+
+  fastify.setErrorHandler((err, request, reply) => {
+    fastify.log.error(
+      {
+        err,
+        request: {
+          method: request.method,
+          url: request.url,
+          query: request.query,
+          params: request.params,
+        },
+      },
+      'Unhandled error occurred',
+    );
+
+    reply.code(err.statusCode ?? 500);
+
+    let message = 'Internal Server Error';
+    if (err.statusCode && err.statusCode < 500) {
+      message = err.message;
+    }
+
+    return { message };
+  });
+
+  // An attacker could search for valid URLs if your 404 error handling is not rate limited.
+  await fastify.register(import('@fastify/rate-limit'), {
+    max: 100,
+    timeWindow: '1 minute',
   });
 }
-
-["SIGINT", "SIGTERM"].forEach((signal) => {
-  process.on(signal, async () => {
-    await fastify.close();
-
-    process.exit(0);
-  });
-});
-
-void main();
-

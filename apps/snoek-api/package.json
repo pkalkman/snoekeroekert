@@ -2,19 +2,44 @@
   "name": "snoek-api",
   "version": "1.0.0",
   "description": "",
-  "scripts": {
-    "dev": "tsx watch src/main.ts"
-  },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "packageManager": "pnpm@10.13.1",
+  "main": "main.js",
+  "type": "module",
+  "scripts": {
+    "start": "npm run build && fastify start -l info dist/main.js",
+    "build": "pnpm tsc",
+    "watch": "pnpm tsc -w",
+    "dev": "pnpm run build && concurrently -k -p \"[{name}]\" -n \"TypeScript,App\" -c \"yellow.bold,cyan.bold\" \"npm:watch\" \"npm:dev:start\"",
+    "dev:start": "npm run build && fastify start --ignore-watch=.ts$ -w -l info -P dist/main.js",
+    "test": "npm run db:seed && c8 npm run test:run",
+    "test:run": "glob -c \"tsx --test\" \"./test/**/*.ts\"",
+    "standalone": "npm run build && node --env-file=.env dist/server.js",
+    "lint": "eslint --ignore-pattern=dist",
+    "lint:fix": "npm run lint -- --fix",
+    "db:create": "tsx --env-file=.env ./scripts/create-database.ts",
+    "db:drop": "tsx --env-file=.env ./scripts/drop-database.ts",
+    "db:migrate": "tsx --env-file=.env ./scripts/migrate.ts",
+    "db:seed": "tsx --env-file=.env ./scripts/seed-database.ts"
+  },
   "dependencies": {
+    "@fastify/autoload": "^6.3.1",
+    "@fastify/env": "^5.0.2",
+    "@fastify/rate-limit": "^10.3.0",
+    "@fastify/swagger": "^9.5.1",
+    "@fastify/swagger-ui": "^5.2.3",
+    "@fastify/type-provider-typebox": "^5.2.0",
     "fastify": "^5.4.0",
-    "pino-pretty": "^13.0.0"
+    "fastify-cli": "^7.4.0",
+    "fastify-plugin": "^5.0.1"
   },
   "devDependencies": {
     "@types/node": "^24.1.0",
+    "concurrently": "^9.2.0",
+    "fastify-tsconfig": "^3.0.0",
+    "prettier": "^3.6.2",
     "tsx": "^4.20.3",
     "typescript": "^5.8.3"
   }
