@@ -25,3 +25,33 @@
   animation-timing-function: ease-in-out;
   animation-iteration-count: infinite;
 }
+
+@keyframes floatstar {
+  0% {
+    transform: translateY(0px) rotate(0deg);
+    opacity: var(--start-opacity, 0.4);
+  }
+  25% {
+    transform: translateY(-8px) rotate(90deg);
+    opacity: var(--mid-opacity, 0.6);
+  }
+  50% {
+    transform: translateY(-12px) rotate(180deg);
+    opacity: var(--peak-opacity, 0.8);
+  }
+  75% {
+    transform: translateY(-8px) rotate(270deg);
+    opacity: var(--mid-opacity, 0.6);
+  }
+  100% {
+    transform: translateY(0px) rotate(360deg);
+    opacity: var(--start-opacity, 0.4);
+  }
+}
+
+.animate-floatstar {
+  animation: floatstar infinite ease-in-out;
+  --start-opacity: 0.4;
+  --mid-opacity: 0.6;
+  --peak-opacity: 0.8;
+}

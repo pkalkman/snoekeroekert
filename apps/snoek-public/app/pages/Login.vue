@@ -87,6 +87,7 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
+import { navigateTo } from "#app"; // Import navigateTo
 
 const username = ref("");
 const password = ref("");
@@ -94,7 +95,7 @@ const squareStyles = ref([]);
 
 onMounted(() => {
   const squares = [];
-  for (let i = 0; i < 80; i++) {
+  for (let i = 0; i < 100; i++) {
     squares.push(generateSquareStyle(i));
   }
   squareStyles.value = squares;
@@ -137,24 +138,14 @@ const randomColorClass = (n) => {
 };
 
 const handleLogin = async () => {
-  if (!username.value || !password.value) {
-    alert("Please fill in all fields");
-    return;
-  }
+  if (username.value === "admin" && password.value === "admin") {
 
-  try {
-    console.log("Login attempt:", {
-      username: username.value,
-      password: password.value,
+    const adminUrl = "http://localhost:8250";
+    await navigateTo(adminUrl, {
+      external: true,
     });
-
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    username.value = "";
-    password.value = "";
-  } catch (error) {
-    console.error("Login error:", error);
-    alert("Login failed. Please try again.");
+  } else {
+    console.log("Password: " + password.value + " Username: " + username.value);
   }
 };
 </script>
