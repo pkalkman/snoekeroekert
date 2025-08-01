@@ -1,5 +1,1 @@
-<template>
-
-
-    signup
-</template>
+<template>signup</template>

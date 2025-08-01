@@ -1,0 +1,13 @@
+{
+  "name": "@pkit/schemas",
+  "version": "1.0.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./src/index.ts"
+    }
+  },
+  "dependencies": {
+    "zod": "^4.0.14"
+  }
+}

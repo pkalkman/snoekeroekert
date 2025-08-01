@@ -1,13 +1,15 @@
 {
   "name": "snoekeroekert",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev:api": "pnpm --filter api dev",
+    "dev:public": "pnpm --filter snoek-admin dev",
+    "dev:admin": "pnpm --filter snoek-public dev",
+    "format": "prettier --write .",
+    "check-format": "prettier --check ."
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "packageManager": "pnpm@10.13.1"
+  "devDependencies": {
+    "prettier": "^3.6.2",
+    "typescript": "5.8.3"
+  }
 }
