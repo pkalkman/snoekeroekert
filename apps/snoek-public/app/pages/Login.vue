@@ -139,13 +139,10 @@ const randomColorClass = (n) => {
 
 const handleLogin = async () => {
   if (username.value === "admin" && password.value === "admin") {
-
-    const adminUrl = "http://localhost:8250";
-    await navigateTo(adminUrl, {
-      external: true,
-    });
+    await navigateTo('/dashboard');
   } else {
-    console.log("Password: " + password.value + " Username: " + username.value);
+    alert("Invalid username or password. Please try again.");
+    password.value = "";
   }
 };
 </script>
