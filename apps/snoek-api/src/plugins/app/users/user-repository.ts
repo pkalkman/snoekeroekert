@@ -1,5 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import { Knex } from 'knex';
+import { Auth } from '../../../schemas/auth.js';
+import fp from 'fastify-plugin';
 
 declare module 'fastify' {
   interface FastifyInstance {
@@ -18,6 +20,33 @@ export function createUsersRepository(fastify: FastifyInstance) {
         .first()
 
       return user
+    },
+
+    async updatePassword (email: string, hashedPassword: string) {
+      return knex('users')
+        .update({ password: hashedPassword })
+        .where({ email })
+    },
+
+    async findUserRolesByEmail (email: string, trx: Knex) {
+      const roles: ({ name: string })[] = await trx('roles')
+        .select('roles.name')
+        .join('user_roles', 'roles.id', '=', 'user_roles.role_id')
+        .join('users', 'user_roles.user_id', '=', 'users.id')
+        .where('users.email', email)
+
+      return roles
     }
   }
 }
+
+export default fp(
+  async function (fastify: FastifyInstance) {
+    const repo = createUsersRepository(fastify)
+    fastify.decorate('usersRepository', repo)
+  },
+  {
+    name: 'users-repository',
+    dependencies: ['knex']
+  }
+)
